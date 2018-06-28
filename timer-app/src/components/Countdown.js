@@ -1,14 +1,30 @@
 import React, { Component } from 'react';
 import moment from 'moment'
+import Controls from './Controls'
 
-class Countdown extends Component{
+export default class Countdown extends Component{
     constructor(props){
         super(props)
 
 
         this.state = {
-            duration: this.getRemainingTime()
+            duration: this.getRemainingTime(),
+            paused: false
         }
+
+        this.togglePaused = this.togglePaused.bind(this)
+    }
+
+    componentDidMount(){
+        this.interval = setInterval(()=>{
+            this.setState({
+                duration: this.getRemainingTime()
+            })
+        }, 1000)
+    }
+
+    componentWillUnmount(){
+        clearInterval(this.interval)
     }
 
     getRemainingTime(){
@@ -19,11 +35,28 @@ class Countdown extends Component{
         return moment.duration(diff);
     }
 
+    togglePaused(){
+        console.log('clicked ')
+        this.setState({
+            paused: !this.state.paused
+        })
+
+        if(this.state.paused){
+            clearInterval(this.interval)
+        }else{
+            this.interval = setInterval(()=>{
+                this.setState({
+                    duration: this.getRemainingTime()
+                })
+            }, 1000)
+        }
+    }
+
     render(){
         
-       const { duration } = this.state
+       const { duration, paused } = this.state
 
-       return  <section className="hero is-info is-bold is-fullheight has-text-centered">
+       return  <section className="hero is-dark is-bold is-fullheight has-text-centered">
             <div className="hero-body">
                 <div className="container">
                     <h1 className="title">
@@ -57,11 +90,11 @@ class Countdown extends Component{
                             </div>
                         </nav>
                     </div>
+
+                    <Controls pause={paused} onPausedToggle = {this.togglePaused}/>
                 </div>
             </div>
         </section>
     }
 }
 
-
-export default Countdown
